@@ -1,9 +1,18 @@
 import React, { useState } from "react";
 import { Prompt, PromptDTO, PromptMood } from "../types";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { MoodButton } from "./MoodButton";
 import { AppButton } from "./AppButton";
-import { COLORS, FONT_SIZES, globalStyles, RADIUS, SPACING } from "../theme";
+import { COLORS, FONT_SIZES, globalStyles, RADIUS, SPACING } from "../themes";
 
 export interface SetupPromptsProps {
   prompts: Prompt[];
@@ -34,33 +43,56 @@ export function SetupPrompts({ prompts, onAddPrompt }: SetupPromptsProps) {
 
   return (
     <View style={globalStyles.grow}>
-      <View style={globalStyles.grow}>
+      <KeyboardAvoidingView
+        style={globalStyles.grow}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         <ScrollView style={globalStyles.grow}>
           <View style={[globalStyles.inputContainer, { gap: SPACING.sm }]}>
-            {/* Task 2 and 3: Add prompt for a name input */}
+            <Text
+              testID="prompt-name-text-label"
+              style={globalStyles.inputLabel}
+            >
+              Prompt:
+            </Text>
             <TextInput
+              style={[globalStyles.input, globalStyles.textInput]}
               value={promptName}
               onChangeText={setPromptName}
               placeholder="Coding"
-              style={[globalStyles.input, globalStyles.textInput]}
-              editable={isAddingPrompt ? "true" : "false"}
+              editable={!isAddingPrompt}
+              accessibilityLabel="Prompt name"
             />
           </View>
           <View style={[globalStyles.inputContainer, { gap: SPACING.sm }]}>
-            {/* Task 2 and 3: Add prompt for a score input */}
+            <Text
+              testID="prompt-points-text-label"
+              style={globalStyles.inputLabel}
+            >
+              Points:
+            </Text>
             <TextInput
+              style={[globalStyles.input, globalStyles.textInput]}
               value={promptPoints}
               onChangeText={setPromptPoints}
               placeholder="1"
-              style={[globalStyles.input, globalStyles.textInput]}
-              editable={isAddingPrompt ? "true" : "false"}
+              editable={!isAddingPrompt}
+              keyboardType="number-pad"
+              accessibilityLabel="Prompt points"
             />
           </View>
 
           <View style={globalStyles.inputContainer}>
-            <Text style={globalStyles.inputLabel}>Mood:</Text>
+            <Text
+              testID="prompt-mood-text-label"
+              style={globalStyles.inputLabel}
+            >
+              Mood:
+            </Text>
             <View
               style={[globalStyles.row, styles.radiogroup, { gap: SPACING.md }]}
+              accessible
+              accessibilityRole="radiogroup"
             >
               <MoodButton
                 mood="Cozy"
@@ -90,13 +122,14 @@ export function SetupPrompts({ prompts, onAddPrompt }: SetupPromptsProps) {
             onPressOut={() => setIsAddingPrompt(false)}
           />
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
 
       <View style={[globalStyles.grow, styles.promptsContainer]}>
         <Text style={globalStyles.sectionTitle}>My Prompts:</Text>
         {prompts.length ? (
-          <ScrollView>
-            {prompts.map((item) => (
+          <FlatList
+            data={prompts}
+            renderItem={({ item }) => (
               <View key={item.id} style={styles.promptItem}>
                 <Text style={[styles.itemText, styles.itemPrompt]}>
                   {item.name}
@@ -105,8 +138,9 @@ export function SetupPrompts({ prompts, onAddPrompt }: SetupPromptsProps) {
                   {item.mood} +{item.points}
                 </Text>
               </View>
-            ))}
-          </ScrollView>
+            )}
+            keyExtractor={(item) => item.id}
+          />
         ) : (
           <Text style={styles.noPromptsText}>No prompts yet!</Text>
         )}

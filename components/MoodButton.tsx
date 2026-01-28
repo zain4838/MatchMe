@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, Text, StyleSheet } from "react-native";
 import { PromptMood } from "../types";
-import { COLORS, globalStyles, RADIUS, SPACING } from "../theme";
+import { COLORS, globalStyles, RADIUS, SPACING } from "../themes";
 
 export interface MoodButtonProps {
   mood: PromptMood;
@@ -28,6 +28,8 @@ export function MoodButton({
         pressed && globalStyles.pressed,
       ]}
       onPress={onSelectMood}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: selected }}
     >
       <Text style={[styles.label, selected && styles.labelSelected]}>
         {mood}

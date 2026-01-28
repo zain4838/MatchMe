@@ -53,7 +53,7 @@ export const globalStyles = StyleSheet.create({
   },
 
   input: {
-    height: 40, // todo: update
+    height: 44,
   },
   pressed: {
     transform: [{ scale: 0.96 }],

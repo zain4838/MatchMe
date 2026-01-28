@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
-import { Platform, StyleSheet, Switch, Text, View } from "react-native";
-import { COLORS, FONT_SIZES, globalStyles, SPACING } from "../theme";
+import { Alert, Platform, StyleSheet, Switch, Text, View } from "react-native";
+import { COLORS, FONT_SIZES, globalStyles, SPACING } from "../themes";
 import { Prompt, PromptDTO } from "../types";
 
 import { SetupPrompts } from "./SetupPrompts";
@@ -13,18 +13,53 @@ export interface MatchMeProps {
 }
 export function MatchMe({ prompts, onAddPrompt }: MatchMeProps) {
   const [isSetupMode, setIsSetupMode] = useState(true);
+
+  function onSwitchModeHandler(newValue: boolean) {
+    if (newValue) {
+      if (Platform.OS === "web") {
+        const confirmed = window.confirm(
+          "You're exiting match mode and will lose all your progress! Are you sure you want to continue?",
+        );
+
+        setIsSetupMode(confirmed);
+        return;
+      }
+
+      Alert.alert(
+        "Exiting",
+        "You're exiting match mode and will lose all your progress! Are you sure you want to continue?",
+        [
+          {
+            text: "Stay",
+            onPress: () => setIsSetupMode(false),
+          },
+          {
+            text: "Exit",
+            onPress: () => setIsSetupMode(true),
+          },
+        ],
+      );
+
+      return;
+    }
+
+    setIsSetupMode(newValue);
+  }
   return (
     <View style={[globalStyles.grow, styles.root]}>
       <View style={[globalStyles.grow, styles.container]}>
         <View style={[globalStyles.row, styles.header]}>
           <Text style={styles.title}>Match Me!</Text>
           <View style={styles.switchRow}>
-            {/*Task 1: Add the Switch element here */}
+            <Text testID="game-mode-text-label" style={globalStyles.inputLabel}>
+              {isSetupMode ? "Setup" : "Guess"}:
+            </Text>
             <Switch
+              disabled={prompts.length === 0}
               value={isSetupMode}
-              onValueChange={setIsSetupMode}
-              editable={prompts.length === 0 ? "true" : "false"}
-            ></Switch>
+              onValueChange={onSwitchModeHandler}
+              accessibilityLabel="Select game mode"
+            />
           </View>
         </View>
 
@@ -40,7 +75,7 @@ export function MatchMe({ prompts, onAddPrompt }: MatchMeProps) {
 
 const styles = StyleSheet.create({
   root: {
-    marginTop: SPACING.sm,
+    marginTop: SPACING.xxl,
   },
   container: {
     padding: SPACING.lg,
